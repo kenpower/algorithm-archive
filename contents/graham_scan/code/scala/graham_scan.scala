@@ -13,27 +13,18 @@ object GiftWrap {
     def bottomMost(points: List[Point]): Point = 
       points.reduce((a, b) => if (a.y < b.y) a else b) 
 
-    val start = bottomMost(gift)
+    val origin = bottomMost(gift)
 
-    var (hull, sorted) = gift
+    val (p1::p2::sorted) = gift
                             .distinct
-                            .filter(_ != start)
-                            .sortWith(polarAngle(start)(_) > polarAngle(start)(_))
-                            .splitAt(2)
+                            .filter(_ != origin)
+                            .sortWith(polarAngle(origin)(_) > polarAngle(origin)(_))
 
-    hull= hull.reverse :+ start
-
-    // can we use sorted.reduce here?
-    sorted.foreach( p => {
-        while (isClockwise(hull(1), hull(0), p)){
-            println("" + p +"---" + hull)
-            hull = hull.tail
-        }
-        hull = p::hull
-    })
-
-    hull
+    def addPoint(hull: List[Point], p: Point):List[Point] = 
+        if (!isClockwise(hull.init.last, hull.last, p)) hull:+p
+        else addPoint(hull.init, p)
     
+    sorted.foldLeft(List(origin, p1, p2))(addPoint)
   }
 
 
